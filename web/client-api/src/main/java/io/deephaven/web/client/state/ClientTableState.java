@@ -447,6 +447,16 @@ public final class ClientTableState extends TableConfig {
         if (create) {
             ColumnDefinition[] columnDefinitions = tableDef.getColumns();
 
+            // Populate column restrictions from input table metadata if available
+            if (tableDef.getInputTableMetadata() != null) {
+                for (ColumnDefinition definition : columnDefinitions) {
+                    var restrictions = tableDef.getInputTableMetadata().getColumnRestrictions(definition.getName());
+                    if (restrictions != null) {
+                        definition.setColumnRestrictions(restrictions.getRestrictions());
+                    }
+                }
+            }
+
             // iterate through the columns, combine format columns into the normal model
             Map<Boolean, Map<String, ColumnDefinition>> byNameMap = tableDef.getColumnsByName();
             Column[] columns = new Column[0];
