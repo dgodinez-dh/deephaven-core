@@ -15,6 +15,7 @@ dependencies {
 
     api project(':engine-table')
     implementation project(':proto:proto-backplane-grpc-flight')
+    implementation libs.protobuf.java.util
     implementation project(':log-factory')
     api libs.deephaven.barrage.format
     implementation libs.hdrhistogram

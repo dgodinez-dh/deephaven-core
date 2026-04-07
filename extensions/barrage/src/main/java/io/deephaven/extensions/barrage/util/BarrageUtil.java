@@ -8,6 +8,8 @@ import com.google.flatbuffers.FlatBufferBuilder;
 import com.google.protobuf.Any;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.ByteStringAccess;
+import com.google.protobuf.util.JsonFormat;
+import com.google.protobuf.util.JsonFormat.TypeRegistry;
 import com.google.rpc.Code;
 import io.deephaven.UncheckedDeephavenException;
 import io.deephaven.api.util.NameValidator;
@@ -53,9 +55,14 @@ import io.deephaven.extensions.barrage.chunk.vector.VectorExpansionKernel;
 import io.deephaven.internal.log.LoggerFactory;
 import io.deephaven.io.logger.Logger;
 import io.deephaven.proto.backplane.grpc.DeephavenTableMetadata;
+import io.deephaven.proto.backplane.grpc.DoubleRangeRestriction;
 import io.deephaven.proto.backplane.grpc.ExportedTableCreationResponse;
 import io.deephaven.proto.backplane.grpc.InputTableMetadata;
 import io.deephaven.proto.backplane.grpc.InputTableColumnInfo;
+import io.deephaven.proto.backplane.grpc.IntegerRangeRestriction;
+import io.deephaven.proto.backplane.grpc.NonEmptyRestriction;
+import io.deephaven.proto.backplane.grpc.NotNullRestriction;
+import io.deephaven.proto.backplane.grpc.StringListRestriction;
 import io.deephaven.proto.flight.util.MessageHelper;
 import io.deephaven.proto.flight.util.SchemaHelper;
 import io.deephaven.proto.util.Exceptions;
@@ -127,6 +134,17 @@ public class BarrageUtil {
     public static final long FLATBUFFER_MAGIC = 0x6E687064;
 
     private static final Logger log = LoggerFactory.getLogger(BarrageUtil.class);
+
+    /**
+     * TypeRegistry for JSON serialization of InputTableMetadata with restriction types.
+     */
+    private static final TypeRegistry INPUT_TABLE_TYPE_REGISTRY = TypeRegistry.newBuilder()
+            .add(IntegerRangeRestriction.getDescriptor())
+            .add(DoubleRangeRestriction.getDescriptor())
+            .add(NotNullRestriction.getDescriptor())
+            .add(NonEmptyRestriction.getDescriptor())
+            .add(StringListRestriction.getDescriptor())
+            .build();
 
     public static final double TARGET_SNAPSHOT_PERCENTAGE =
             Configuration.getInstance().getDoubleForClassWithDefault(BarrageUtil.class,
@@ -555,9 +573,15 @@ public class BarrageUtil {
         final DeephavenTableMetadata metadata =
                 DeephavenTableMetadata.newBuilder().setInputTableMetadata(builder).build();
 
-        final byte[] bytes = metadata.toByteArray();
-        final String base64 = Base64.getEncoder().encodeToString(bytes);
-        putMetadata(schemaMetadata, ATTR_PROTO_METADATA_TAG, base64);
+        try {
+            final String json = JsonFormat.printer()
+                    .usingTypeRegistry(INPUT_TABLE_TYPE_REGISTRY)
+                    .print(metadata);
+            final String base64 = Base64.getEncoder().encodeToString(json.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            putMetadata(schemaMetadata, ATTR_PROTO_METADATA_TAG, base64);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+            throw new UncheckedDeephavenException("Failed to convert InputTableMetadata to JSON", e);
+        }
     }
 
     @NotNull
