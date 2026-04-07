@@ -5,6 +5,7 @@ package io.deephaven.web.client.api.barrage;
 
 import com.google.flatbuffers.FlatBufferBuilder;
 import elemental2.core.*;
+import elemental2.dom.DomGlobal;
 import io.deephaven.barrage.flatbuf.BarrageMessageType;
 import io.deephaven.barrage.flatbuf.BarrageMessageWrapper;
 import io.deephaven.web.client.api.barrage.def.ColumnDefinition;
@@ -147,17 +148,18 @@ public class WebBarrageUtils {
         return metadata;
     }
 
-    // Native JavaScript methods to decode and parse protobuf without generated classes
+    // Decode base64 string to Uint8Array using elemental2
+    private static Uint8Array decodeBase64(String base64) {
+        // Use DomGlobal.atob() to decode base64 to binary string
+        String binaryString = DomGlobal.atob(base64);
 
-    private static native Uint8Array decodeBase64(String base64) /*-{
-        // Convert base64 string to Uint8Array
-        var binaryString = atob(base64);
-        var bytes = new Uint8Array(binaryString.length);
-        for (var i = 0; i < binaryString.length; i++) {
-            bytes[i] = binaryString.charCodeAt(i);
+        // Convert binary string to Uint8Array
+        Uint8Array bytes = new Uint8Array(binaryString.length());
+        for (int i = 0; i < binaryString.length(); i++) {
+            bytes.setAt(i, (double) (binaryString.charAt(i) & 0xff));
         }
         return bytes;
-    }-*/;
+    }
 
     private static native jsinterop.base.Any parseProtoManually(Uint8Array bytes) /*-{
         // Manual protobuf parsing to work around missing google.protobuf.Any
