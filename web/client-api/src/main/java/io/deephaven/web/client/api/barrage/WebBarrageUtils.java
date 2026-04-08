@@ -12,6 +12,7 @@ import io.deephaven.web.client.api.barrage.def.ColumnDefinition;
 import io.deephaven.web.client.api.barrage.def.InitialTableDefinition;
 import io.deephaven.web.client.api.barrage.def.InputTableMetadata;
 import io.deephaven.web.client.api.barrage.def.TableAttributesDefinition;
+import io.deephaven.web.client.api.barrage.util.ColumnRestrictionConverter;
 import io.deephaven.web.client.api.barrage.util.ColumnRestrictionUtils;
 import io.deephaven.web.client.fu.JsLog;
 import io.deephaven.web.shared.data.*;
@@ -32,6 +33,37 @@ import java.util.function.IntFunction;
  */
 public class WebBarrageUtils {
     public static final int FLATBUFFER_MAGIC = 0x6E687064;
+
+    private static final Map<String, ColumnRestrictionConverter> restrictionConverters = new HashMap<>();
+
+    static {
+        // Register default converters
+        registerColumnRestrictionConverter("IntegerRangeRestriction", ColumnRestrictionUtils::convertIntegerRangeRestriction);
+        registerColumnRestrictionConverter("DoubleRangeRestriction", ColumnRestrictionUtils::convertDoubleRangeRestriction);
+        registerColumnRestrictionConverter("NotNullRestriction", ColumnRestrictionUtils::convertNotNullRestriction);
+        registerColumnRestrictionConverter("NonEmptyRestriction", ColumnRestrictionUtils::convertNonEmptyRestriction);
+        registerColumnRestrictionConverter("StringListRestriction", ColumnRestrictionUtils::convertStringListRestriction);
+    }
+
+    /**
+     * Register a converter for a specific restriction type.
+     *
+     * @param restrictionType The type name of the restriction (e.g., "IntegerRangeRestriction")
+     * @param converter The converter function to convert the restriction data
+     */
+    public static void registerColumnRestrictionConverter(String restrictionType, ColumnRestrictionConverter converter) {
+        restrictionConverters.put(restrictionType, converter);
+    }
+
+    /**
+     * Get the converter for a specific restriction type.
+     *
+     * @param restrictionType The type name of the restriction
+     * @return The converter, or null if none is registered
+     */
+    static ColumnRestrictionConverter getColumnRestrictionConverter(String restrictionType) {
+        return restrictionConverters.get(restrictionType);
+    }
 
     public static Uint8Array wrapMessage(FlatBufferBuilder innerBuilder, byte messageType) {
         FlatBufferBuilder outerBuilder = new FlatBufferBuilder(1024);
@@ -119,7 +151,17 @@ public class WebBarrageUtils {
                             InputTableMetadata.ColumnRestrictions colRestrictions =
                                 new InputTableMetadata.ColumnRestrictions();
                             for (int i = 0; i < restrictions.length; i++) {
-                                colRestrictions.addRestriction(restrictions.getAt(i));
+                                jsinterop.base.Any restrictionData = restrictions.getAt(i);
+
+                                // Get the restriction type and convert it
+                                String restrictionType = getRestrictionType(restrictionData);
+                                if (restrictionType != null) {
+                                    ColumnRestrictionConverter converter = getColumnRestrictionConverter(restrictionType);
+                                    if (converter != null) {
+                                        io.deephaven.web.client.api.ColumnRestriction restriction = converter.convert(restrictionData);
+                                        colRestrictions.addRestriction(restriction);
+                                    }
+                                }
                             }
                             metadata.addColumnRestrictions(columnName, colRestrictions);
                         }
@@ -146,6 +188,10 @@ public class WebBarrageUtils {
         return bytes;
     }
 
+    private static native String getRestrictionType(jsinterop.base.Any restrictionData) /*-{
+        if (!restrictionData) return null;
+        return restrictionData.type || null;
+    }-*/;
 
     private static native jsinterop.base.Any getPropertyFromMap(jsinterop.base.Any map, String key) /*-{
         if (map == null) return null;

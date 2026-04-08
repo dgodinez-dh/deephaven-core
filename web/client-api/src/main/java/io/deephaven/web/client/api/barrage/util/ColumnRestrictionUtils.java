@@ -234,34 +234,70 @@ public class ColumnRestrictionUtils {
     }-*/;
 
     /**
-     * Convert parsed restriction data into a ColumnRestriction object.
+     * Convert IntegerRangeRestriction data into a ColumnRestriction object.
      *
      * @param restrictionData The parsed restriction data from protobuf
      * @return A ColumnRestriction object, or null if conversion fails
      */
-    public static native ColumnRestriction convertRestriction(Any restrictionData) /*-{
+    public static native ColumnRestriction convertIntegerRangeRestriction(Any restrictionData) /*-{
         if (!restrictionData) return null;
+        var minValue = restrictionData.minInclusive !== undefined ? restrictionData.minInclusive : NaN;
+        var maxValue = restrictionData.maxInclusive !== undefined ? restrictionData.maxInclusive : NaN;
+        return @io.deephaven.web.client.api.ColumnRestriction::new(Ljava/lang/String;DD)(
+            "IntegerRangeRestriction", minValue, maxValue
+        );
+    }-*/;
 
-        var type = restrictionData.type || "Unknown";
+    /**
+     * Convert DoubleRangeRestriction data into a ColumnRestriction object.
+     *
+     * @param restrictionData The parsed restriction data from protobuf
+     * @return A ColumnRestriction object, or null if conversion fails
+     */
+    public static native ColumnRestriction convertDoubleRangeRestriction(Any restrictionData) /*-{
+        if (!restrictionData) return null;
+        var minValue = restrictionData.minInclusive !== undefined ? restrictionData.minInclusive : NaN;
+        var maxValue = restrictionData.maxInclusive !== undefined ? restrictionData.maxInclusive : NaN;
+        return @io.deephaven.web.client.api.ColumnRestriction::new(Ljava/lang/String;DD)(
+            "DoubleRangeRestriction", minValue, maxValue
+        );
+    }-*/;
 
-        // Create the appropriate ColumnRestriction based on type
-        if (type === 'IntegerRangeRestriction' || type === 'DoubleRangeRestriction') {
-            var minValue = restrictionData.minInclusive !== undefined ? restrictionData.minInclusive : NaN;
-            var maxValue = restrictionData.maxInclusive !== undefined ? restrictionData.maxInclusive : NaN;
-            return @io.deephaven.web.client.api.ColumnRestriction::new(Ljava/lang/String;DD)(
-                type, minValue, maxValue
-            );
-        } else if (type === 'StringListRestriction') {
-            var allowedValues = restrictionData.allowedValues || [];
-            // Use the JS array directly - it will be cast to JsArray<Any> automatically
-            return @io.deephaven.web.client.api.ColumnRestriction::new(Ljava/lang/String;Lelemental2/core/JsArray;)(
-                type, allowedValues
-            );
-        } else if (type === 'NotNullRestriction' || type === 'NonEmptyRestriction') {
-            return @io.deephaven.web.client.api.ColumnRestriction::new(Ljava/lang/String;)(type);
-        }
+    /**
+     * Convert NotNullRestriction data into a ColumnRestriction object.
+     *
+     * @param restrictionData The parsed restriction data from protobuf
+     * @return A ColumnRestriction object, or null if conversion fails
+     */
+    public static native ColumnRestriction convertNotNullRestriction(Any restrictionData) /*-{
+        if (!restrictionData) return null;
+        return @io.deephaven.web.client.api.ColumnRestriction::new(Ljava/lang/String;)("NotNullRestriction");
+    }-*/;
 
-        return null;
+    /**
+     * Convert NonEmptyRestriction data into a ColumnRestriction object.
+     *
+     * @param restrictionData The parsed restriction data from protobuf
+     * @return A ColumnRestriction object, or null if conversion fails
+     */
+    public static native ColumnRestriction convertNonEmptyRestriction(Any restrictionData) /*-{
+        if (!restrictionData) return null;
+        return @io.deephaven.web.client.api.ColumnRestriction::new(Ljava/lang/String;)("NonEmptyRestriction");
+    }-*/;
+
+    /**
+     * Convert StringListRestriction data into a ColumnRestriction object.
+     *
+     * @param restrictionData The parsed restriction data from protobuf
+     * @return A ColumnRestriction object, or null if conversion fails
+     */
+    public static native ColumnRestriction convertStringListRestriction(Any restrictionData) /*-{
+        if (!restrictionData) return null;
+        var allowedValues = restrictionData.allowedValues || [];
+        // Use the JS array directly - it will be cast to JsArray<Any> automatically
+        return @io.deephaven.web.client.api.ColumnRestriction::new(Ljava/lang/String;Lelemental2/core/JsArray;)(
+            "StringListRestriction", allowedValues
+        );
     }-*/;
 }
 

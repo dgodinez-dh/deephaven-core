@@ -5,10 +5,8 @@ package io.deephaven.web.client.api.barrage.def;
 
 import elemental2.core.JsArray;
 import io.deephaven.web.client.api.ColumnRestriction;
-import io.deephaven.web.client.api.barrage.util.ColumnRestrictionUtils;
 import jsinterop.annotations.JsIgnore;
 import jsinterop.annotations.JsNullable;
-import jsinterop.base.Any;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -47,13 +45,12 @@ public class InputTableMetadata {
         }
 
         @JsIgnore
-        public void addRestriction(Any restrictionData) {
-            // Convert the parsed restriction data into a ColumnRestriction object
-            ColumnRestriction restriction = ColumnRestrictionUtils.convertRestriction(restrictionData);
+        public void addRestriction(ColumnRestriction restriction) {
             if (restriction != null) {
                 restrictions.push(restriction);
             }
         }
+
 
         @JsIgnore
         public JsArray<ColumnRestriction> getRestrictions() {
