@@ -49,7 +49,7 @@ public class Column {
     private String description;
     private final boolean isInputTableKeyColumn;
     private final boolean isInputTableValueColumn;
-    private final JsArray<Any> columnRestrictions;
+    private final JsArray<ColumnRestriction> columnRestrictions;
 
     /**
      * Format entire rows colors using the expression specified. Returns a {@code CustomColumn} object to apply to a
@@ -84,7 +84,7 @@ public class Column {
     public Column(int jsIndex, int index, Integer formatColumnIndex, Integer styleColumnIndex, String type, String name,
             boolean isPartitionColumn, Integer formatStringColumnIndex, String description,
             boolean inputTableKeyColumn, boolean inputTableValueColumn, boolean isSortable,
-            JsArray<Any> columnRestrictions) {
+            JsArray<ColumnRestriction> columnRestrictions) {
         this.jsIndex = jsIndex;
         this.index = index;
         assert Objects.equals(formatColumnIndex, styleColumnIndex);
@@ -246,7 +246,7 @@ public class Column {
      */
     @JsProperty
     @JsNullable
-    public JsArray<Any> getColumnRestrictions() {
+    public JsArray<ColumnRestriction> getColumnRestrictions() {
         return columnRestrictions;
     }
 
