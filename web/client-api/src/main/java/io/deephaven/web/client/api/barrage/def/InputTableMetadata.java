@@ -63,7 +63,6 @@ public class InputTableMetadata {
             if (!restrictionData) return null;
 
             var type = restrictionData.type || "Unknown";
-            console.log("convertRestriction: Converting restriction of type:", type);
 
             // Create the appropriate ColumnRestriction based on type
             if (type === 'IntegerRangeRestriction' || type === 'DoubleRangeRestriction') {
@@ -80,10 +79,9 @@ public class InputTableMetadata {
                 );
             } else if (type === 'NotNullRestriction' || type === 'NonEmptyRestriction') {
                 return @io.deephaven.web.client.api.ColumnRestriction::new(Ljava/lang/String;)(type);
-            } else {
-                console.warn("convertRestriction: Unknown restriction type:", type);
-                return null;
             }
+
+            return null;
         }-*/;
     }
 }
