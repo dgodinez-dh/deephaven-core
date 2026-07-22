@@ -119,8 +119,6 @@ Note that six colors are available by default. The "Custom" option allows you to
 
 - Optionally, select one or more columns to apply the rule to. By default, the rule will apply to the left-hand column selected in the first step.
 
-![Conditional formatting column selection](../../assets/how-to/ui/cond_formatting7.png)
-
 In the example below, all cells in the Exchange column containing the value "Arca" will be colored in the "Positive" style:
 
 ![Applying conditional formatting](../../assets/how-to/ui/cond_formatting5.gif)
