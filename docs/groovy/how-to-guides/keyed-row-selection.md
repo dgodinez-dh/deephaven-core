@@ -85,10 +85,10 @@ These attributes are preserved through the following operations:
 - `reverse`
 - `flatten`
 - `updateView`
-- `join`
+- `naturalJoin`
 - `wouldMatch`
 
-Any other operation (e.g., `select`, `update`, `naturalJoin`, `dropColumns`) will drop the key column attributes. If you need key columns after such an operation, call `withKeys` or `withUniqueKeys` again on the result.
+Any other operation (e.g., `select`, `update`, `join`, `dropColumns`) will drop the key column attributes. If you need key columns after such an operation, call `withKeys` or `withUniqueKeys` again on the result.
 
 ## Related documentation
 
