@@ -78,7 +78,17 @@ Under the hood, `withKeys` and `withUniqueKeys` set table attributes:
 - `KEY_COLUMNS_ATTRIBUTE` — a comma-separated list of key column names.
 - `UNIQUE_KEYS_ATTRIBUTE` — set to `true` by `withUniqueKeys` to signal that keys are unique.
 
-These attributes are preserved through many common table operations (filter, sort, reverse, flatten, etc.) so that key column behavior persists after chained operations.
+These attributes are preserved through the following operations:
+
+- `filter`
+- `sort`
+- `reverse`
+- `flatten`
+- `updateView`
+- `join`
+- `wouldMatch`
+
+Any other operation (e.g., `select`, `update`, `naturalJoin`, `dropColumns`) will drop the key column attributes. If you need key columns after such an operation, call `withKeys` or `withUniqueKeys` again on the result.
 
 ## Related documentation
 
