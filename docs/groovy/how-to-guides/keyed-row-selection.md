@@ -9,7 +9,7 @@ Key columns are metadata — they do not change the data in the table, only how 
 
 ## `withKeys`
 
-[`withKeys`](../reference/table-operations/select/withKeys.md) sets one or more columns as the key columns for a table. Multiple rows may share the same key values. When a user selects a row, the UI tracks _all_ rows with the same key column values.
+`withKeys` sets one or more columns as the key columns for a table. Multiple rows may share the same key values. When a user selects a row, the UI tracks _all_ rows with the same key column values.
 
 ### Syntax
 
@@ -40,7 +40,7 @@ In this example, `Key1` and `Key2` together form the key. Because values repeat 
 
 ## `withUniqueKeys`
 
-[`withUniqueKeys`](../reference/table-operations/select/withUniqueKeys.md) sets one or more columns as key columns _and_ declares that each combination of key values identifies exactly one row. When a user selects a row, only that single row is tracked.
+`withUniqueKeys` sets one or more columns as key columns _and_ declares that each combination of key values identifies exactly one row. When a user selects a row, only that single row is tracked.
 
 Use `withUniqueKeys` when your key columns form a true primary key — i.e., no two rows share the same key values.
 
